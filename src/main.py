@@ -64,7 +64,7 @@ def removeUpgradeFromItem(node):
                     componentNode = item
                 else:
                     for componentNode in item.iter(componentTargeted):  # To find the component
-                        break;
+                        break
 
                 # Replace Current values with the ones prior to the upgrade.
                 statUpgradedValue = componentNode.attrib[statModified]
@@ -117,7 +117,6 @@ def main():
             uncompressedData = f.read()
 
         submarineInfo = uncompressedData.decode('utf-8')
-
         logging.info(f"Read sub file {submarineInputFile}, start parsing.")
 
         submarineOutputFolder = path.join(OUTPUT_DIR, submarineFilenameWithoutExt)
@@ -134,8 +133,9 @@ def main():
         submarineInfo = removeUpgradeFromXml(submarineInfo, submarineXmlFileEdit)
 
         logging.info(f"Writing info to output dir {submarineOutputFolder}.")
-        with open(submarineXmlFile, "w", encoding="utf-8") as fileOut:    # Write original XML file (edited exported in removeUpgradeFromXml).
-            fileOut.write(submarineInfo)
+        submarineInfoAsBytes = submarineInfo.encode('utf-8')
+        with open(submarineXmlFile, "wb") as fileOut:    # Write original XML file (edited exported in removeUpgradeFromXml).
+            fileOut.write(submarineInfoAsBytes)
 
         submarineOutputSubFile = path.join(submarineOutputFolder, submarineFilenameWithExt)
         with open(submarineXmlFileEdit, 'rb') as f_in:
