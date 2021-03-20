@@ -11,7 +11,7 @@ So this tool restores all the items to their original values while retaining the
 
 ## Installation
 
-With python3 installed.
+With python3 installed. (Carefull the installer creation doesn't work on windows with a python version installed from the micrososft store)
 
 1. Install pip:
 
@@ -23,7 +23,11 @@ With python3 installed.
 
 `pip install virtualenv`
 
-3. Load env
+3. Create virtualenv
+
+`virtualenv env`
+
+4. Load env
 
 With visual studio code, use the "Select interpreter command".
 
@@ -34,6 +38,10 @@ Change policy to remote signed to authorize script to execute.
 
 `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned`
 
+5. Install requirements
+
+`pip install -r .\requirements.txt`
+
 ## Running
 
 Drop your .sub file retrieved from your campaign in the **workingdir/input** folder where you downloaded the python script. You can get using using the [Save-Decompressor](https://github.com/Jlobblet/Barotrauma-Save-Decompressor)
@@ -43,9 +51,16 @@ The tool will automatically loop over all the sub files in there and produces 3 
 - *subfilename_noUpgrades.xml* : the submarines with all its upgrades removed and its original valeus restored.
 - *subfilename.sub* : Upgrades removed version of the submarines but in a .sub format. (gzipped)
 
-To start the script, no option is required, just run `python3 main.py`
+To start the script in **dev env**, no option is required, just run `python3 main.py`
+
+With **executable**, just run the executable
 
 ## Testing
 
 Once the .sub has been produced, you can load it inside the editor to check that the values have indeed been restored to their original.
 
+## Generating executable
+
+Within the dev env, run
+
+`python -m PyInstaller --name "Barotrauma-Upgrades-Remover" --add-data "workingdir/input/drop_your_sub_file_here.txt;workingdir/input/drop_your_sub_file_here.txt" "src\main.py" --noconfirm`

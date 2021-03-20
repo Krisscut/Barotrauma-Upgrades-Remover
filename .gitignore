@@ -2,6 +2,15 @@ env
 .vscode
 *.code-workspace
 
+# build executable
+build
+dist
+*.spec
+
+# Python related files
+__pycache__
+get-pip.py
+
 # Barotrauma's related files ignored.
 *.sub
 *.xml

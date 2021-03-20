@@ -18,7 +18,9 @@ import re
 
 CWD_DIR = os.getcwd()
 SCRIPT_DIR = path.dirname(os.path.realpath(__file__))
-WORKING_DIR = path.join(SCRIPT_DIR, "../workingDir")
+
+EXECUTABLE_MODE = False if SCRIPT_DIR.endswith("Barotrauma-Upgrades-Remover" + os.sep + "src") else True
+WORKING_DIR = path.join(SCRIPT_DIR, "./workingDir") if EXECUTABLE_MODE else path.join(SCRIPT_DIR, "../workingDir") # dev versus
 INPUT_DIR = path.join(WORKING_DIR, "input")
 OUTPUT_DIR = path.join(WORKING_DIR, "output")
 
@@ -70,7 +72,7 @@ def removeUpgradeFromItem(node):
                 statUpgradedValue = componentNode.attrib[statModified]
                 componentNode.attrib[statModified] = statInitialValue
 
-                logging.info(f"Found an upgrade with id {upgrade.attrib['identifier']}(level {upgradeLevel}). For component {componentTargeted}[{itemId}], property {statModified} with original value {statInitialValue} (restored) and upgraded value {statUpgradedValue} (dropped)")
+                logging.debug(f"Found an upgrade with id {upgrade.attrib['identifier']}(level {upgradeLevel}). For component {componentTargeted}[{itemId}], property {statModified} with original value {statInitialValue} (restored) and upgraded value {statUpgradedValue} (dropped)")
                 upgradesToRemove.append(upgrade)
 
         for upgradeItemToRemove in upgradesToRemove:
@@ -99,9 +101,6 @@ def removeUpgradeFromXml(submarineStr, editedLocation):
 
 def main():
     global NB_LINKED_SUBMARINES, NB_UPGRADES_FOUND
-    # starting time
-    start = time.time()
-    logging.info("Start script")
 
     NB_PROCESSED_SUBMARINES = 0
     os.chdir(INPUT_DIR)
@@ -144,13 +143,28 @@ def main():
 
         logging.info(f"Processed the sub + {NB_LINKED_SUBMARINES} linked submarines. Found {NB_UPGRADES_FOUND} upgrades.")
 
-    end = time.time()
     logging.info(f"Processed {NB_PROCESSED_SUBMARINES} submarine(s).")
-    logging.info(f"End script after {end - start} seconds")
 
+    if NB_PROCESSED_SUBMARINES == 0:
+        logging.warning(f"No submarines were processed. You should put the submarine file (.sub) inside the input folder {INPUT_DIR}")
 
 
 if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s', level=logging.DEBUG)
+
+    logging.debug(f"ScriptDir: {SCRIPT_DIR}")
+    logging.debug(f"WorkingDir: {WORKING_DIR}")
+
+    # starting time
+    start = time.time()
+    logging.info("Start script in {} mode".format("EXECUTABLE" if EXECUTABLE_MODE else "SCRIPT"))
+
     # execute only if run as a script
     main()
+
+    end = time.time()
+    logging.info(f"End script after {end - start} seconds")
+
+    # Prevent auto close of the console at the end ...
+    if EXECUTABLE_MODE:
+        os.system("pause")
