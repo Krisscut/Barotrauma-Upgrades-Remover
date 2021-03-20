@@ -154,10 +154,12 @@ if __name__ == "__main__":
 
     logging.debug(f"ScriptDir: {SCRIPT_DIR}")
     logging.debug(f"WorkingDir: {WORKING_DIR}")
+    logging.debug(f"InputDir: {INPUT_DIR}")
+    logging.debug(f"OutputDir: {OUTPUT_DIR}")
 
     # starting time
     start = time.time()
-    logging.info("Start script in {} mode".format("EXECUTABLE" if EXECUTABLE_MODE else "SCRIPT"))
+    logging.info("Start in {} mode".format("EXECUTABLE" if EXECUTABLE_MODE else "SCRIPT"))
 
     # execute only if run as a script
     main()
