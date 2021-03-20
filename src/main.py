@@ -36,12 +36,15 @@ def removeUpgradeFromItem(node):
 
         #logging.info(f'tag is {itemName} with attrib {itemAttribs}')
 
+        upgradesToRemove = []
         for upgrade in item.iter('Upgrade'):
             if itemName == "LinkedSubmarine":
                 NB_LINKED_SUBMARINES += 1
                 removeUpgradeFromItem(item)
             else:
                 NB_UPGRADES_FOUND += 1
+                itemId = item.attrib['ID']
+
                 # Search for datas first
                 upgradeId = upgrade.attrib['identifier']
                 upgradeLevel = upgrade.attrib['level']
@@ -57,15 +60,22 @@ def removeUpgradeFromItem(node):
                 statModified = statNode.tag
                 statInitialValue = statNode.attrib['value']
 
-                # Remove upgrade node now that upgrades have been removed.
-                item.remove(upgrade)
+                if componentTargeted == "This": # Special case for wall, property is in the item inself, not in a subnode
+                    componentNode = item
+                else:
+                    for componentNode in item.iter(componentTargeted):  # To find the component
+                        break;
 
                 # Replace Current values with the ones prior to the upgrade.
-                for componentNode in item.iter(componentTargeted):
-                    statUpgradedValue = componentNode.attrib[statModified]
-                    componentNode.attrib[statModified] = statInitialValue
+                statUpgradedValue = componentNode.attrib[statModified]
+                componentNode.attrib[statModified] = statInitialValue
 
-                logging.info(f"Found an upgrade with id {upgrade.attrib['identifier']}(level {upgradeLevel}). For component {componentTargeted}, property {statModified} with original value {statInitialValue} (restored) and upgraded value {statUpgradedValue} (dropped)")
+                logging.info(f"Found an upgrade with id {upgrade.attrib['identifier']}(level {upgradeLevel}). For component {componentTargeted}[{itemId}], property {statModified} with original value {statInitialValue} (restored) and upgraded value {statUpgradedValue} (dropped)")
+                upgradesToRemove.append(upgrade)
+
+        for upgradeItemToRemove in upgradesToRemove:
+            # Remove upgrade node now that upgrades have been removed from stats.
+            item.remove(upgradeItemToRemove)
 
 
 
@@ -85,7 +95,7 @@ def removeUpgradeFromXml(submarineStr, editedLocation):
     tree = ET.ElementTree(root)
     tree.write(editedLocation, encoding="UTF-8", xml_declaration=False)
 
-    #return submarineDataEdited.
+    return submarineStr
 
 def main():
     global NB_LINKED_SUBMARINES, NB_UPGRADES_FOUND
@@ -103,8 +113,10 @@ def main():
         submarineFilenameWithExt = path.basename(submarineInputFile)
         submarineFilenameWithoutExt = os.path.splitext(submarineFilenameWithExt)[0]
 
-        with gzip.open(submarineInputFile,  mode='rt') as f: #'rb'
-            submarineInfo = f.read()
+        with gzip.open(submarineInputFile,  mode='rb') as f: #'rb'
+            uncompressedData = f.read()
+
+        submarineInfo = uncompressedData.decode('utf-8')
 
         logging.info(f"Read sub file {submarineInputFile}, start parsing.")
 
@@ -119,10 +131,10 @@ def main():
         submarineXmlFilenameEdit = submarineFilenameWithoutExt + "_noUpgrades.xml"
         submarineXmlFileEdit = path.join(submarineOutputFolder, submarineXmlFilenameEdit)
 
-        removeUpgradeFromXml(submarineInfo, submarineXmlFileEdit)
+        submarineInfo = removeUpgradeFromXml(submarineInfo, submarineXmlFileEdit)
 
         logging.info(f"Writing info to output dir {submarineOutputFolder}.")
-        with open(submarineXmlFile, "w") as fileOut:    # Write original XML file (edited exported in removeUpgradeFromXml).
+        with open(submarineXmlFile, "w", encoding="utf-8") as fileOut:    # Write original XML file (edited exported in removeUpgradeFromXml).
             fileOut.write(submarineInfo)
 
         submarineOutputSubFile = path.join(submarineOutputFolder, submarineFilenameWithExt)
