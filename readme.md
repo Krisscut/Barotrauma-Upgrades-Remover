@@ -64,3 +64,9 @@ Once the .sub has been produced, you can load it inside the editor to check that
 Within the dev env, run
 
 `python -m PyInstaller --name "Barotrauma-Upgrades-Remover" --add-data "workingdir/input/drop_your_sub_file_here.txt;workingdir/input/drop_your_sub_file_here.txt" "src\main.py" --noconfirm`
+
+## Examples
+
+![Sample output of the application in executable mode](images/example1.png)
+![Diff of previous (red) vers new (green) submarine xml file](images/example2.png)
+
