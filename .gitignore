@@ -1,0 +1,7 @@
+env
+.vscode
+*.code-workspace
+
+# Barotrauma's related files ignored.
+*.sub
+*.xml
